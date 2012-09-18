@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    
+        <TextView 
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" 
+            android:text="@string/ip"
+            />
+        
+        <EditText 
+            android:id="@+id/ip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/iphint"
+            />
+        
+    </LinearLayout>
+    
+    
+    <Button
+        android:id="@+id/connect"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/connect" />
+
+    <Button
+        android:id="@+id/disconnect"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/disconnect" 
+        android:paddingTop="5px"
+        />
+
+    <Button
+        android:id="@+id/pagedown"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pagedown" 
+        android:paddingTop="5px"
+        />
+
+    <Button
+        android:id="@+id/pageup"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5px"
+        android:text="@string/pageup" />
+    
+    <TextView 
+        android:id="@+id/showstatus"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint"
+        />
+</LinearLayout>
