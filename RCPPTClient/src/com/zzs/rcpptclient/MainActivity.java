@@ -5,7 +5,12 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
+import com.zzs.comm.CommHandler;
+import com.zzs.comm.InetHandler;
+
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.app.Activity;
 import android.text.Editable;
 import android.util.Log;
@@ -24,6 +29,50 @@ public class MainActivity extends Activity {
 	Socket s = null;
 	OutputStream os = null;
 	String ipString = null;
+	
+	
+	//‰º†ËæìÈÄö‰ø°ÁöÑhandler
+    public static CommHandler commHandler = null;
+    public static InetHandler inetHandler = null;
+    
+    // Handler message types:
+    public static final int MESSAGE_CONNECTED = 600;
+    public static final int MESSAGE_DISCONNECTED = MESSAGE_CONNECTED + 1;
+    public static final int MESSAGE_ENCODE_FINISHED = MESSAGE_CONNECTED + 2;
+    public static final int MESSAGE_ENCODE_ERROR = MESSAGE_CONNECTED + 3;
+    public static final int MESSAGE_SHOW_COULD_NOT_CONECT_MSG = MESSAGE_CONNECTED + 4;
+    
+    // The Handler that gets information back from the other threads
+    private final Handler msgHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch(msg.what)
+            {
+            case MESSAGE_CONNECTED:
+            	status.setText("connected");
+                Log.i(TAG, "CONNECTED");
+                break;
+
+            case MESSAGE_DISCONNECTED:
+                Log.i(TAG, "DISCONNECTED");
+                status.setText("disconnected");
+                break;
+
+            case MESSAGE_ENCODE_FINISHED:
+                break;
+
+            case MESSAGE_ENCODE_ERROR:
+                Log.e(TAG, "Encode error");
+                break;
+
+            case MESSAGE_SHOW_COULD_NOT_CONECT_MSG:
+                break;
+
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,6 +88,7 @@ public class MainActivity extends Activity {
         pagedown = (Button)findViewById(R.id.pagedown);
         pageup = (Button)findViewById(R.id.pageup);
         
+        
         connect.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -52,27 +102,34 @@ public class MainActivity extends Activity {
 					if(ipString.equals(""))
 						status.setText("please input ip..");
 					else{
-						s = new Socket(ipString, 30000);//¡¨Ω”∑˛ŒÒ∆˜
-						s.setTcpNoDelay(true);
-						os = s.getOutputStream();
-						status.setText("connected");
+						ipText.setText("10.0.0.90");
+						String[] inetServerAddrAndPort = new String[] {ipString, new String("30000")};
+						
+						inetHandler = new InetHandler(getApplicationContext(), msgHandler);
+						commHandler = inetHandler;   //Ëøô‰πàÂÜôÊòØ‰∏∫‰∫ÜÊñπ‰æøËìùÁâôÊâ©Â±ï
+						
+						commHandler.connect(inetServerAddrAndPort);
+//						s = new Socket(ipString, 30000);//ÔøΩÔøΩÔøΩ”∑ÔøΩÔøΩÔøΩÔøΩÔøΩ
+//						s.setTcpNoDelay(true);
+//						os = s.getOutputStream();
+						
 					}
-//					os = new BufferedOutputStream(s.getOutputStream(),128);//µ√µΩ ‰≥ˆ¡˜
+//					os = new BufferedOutputStream(s.getOutputStream(),128);//ÔøΩ√µÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
 //					os = new DataOutputStream(s.getOutputStream());
 				} catch (Exception e) {
-						e.printStackTrace();//¥Ú”°“Ï≥£–≈œ¢
-						try {
-							if(os != null){
-								os.close();//πÿ±’ ‰≥ˆ¡˜
-							}
-							if(s != null){
-								s.close();//πÿ±’Socket¡¨Ω”
-								status.setText("disconnected");
-							}
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}					
+						e.printStackTrace();//ÔøΩÔøΩ”°ÔøΩÏ≥£ÔøΩÔøΩœ¢
+//						try {
+//							if(os != null){
+//								os.close();//ÔøΩÿ±ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+//							}
+//							if(s != null){
+//								s.close();//ÔøΩÿ±ÔøΩSocketÔøΩÔøΩÔøΩÔøΩ
+//								status.setText("disconnected");
+//							}
+//						} catch (IOException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}					
 					}
 				} 
 		});
@@ -83,18 +140,18 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				try{
-					if(os != null){
-						os.close();//πÿ±’ ‰»Î¡˜
-						os = null;
-					}
-					if(s != null){
-						s.close();//πÿ±’Socket¡¨Ω”
-						s = null;
-					}	
-					status.setText("disconnected");
+//					if(os != null){
+//						os.close();//ÔøΩÿ±ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+//						os = null;
+//					}
+//					if(s != null){
+//						s.close();//ÔøΩÿ±ÔøΩSocketÔøΩÔøΩÔøΩÔøΩ
+//						s = null;
+//					}	
+					commHandler.disconnect();
 				}
 				catch(Exception e){
-					e.printStackTrace();//¥Ú”°“Ï≥£–≈œ¢
+					e.printStackTrace();//ÔøΩÔøΩ”°ÔøΩÏ≥£ÔøΩÔøΩœ¢
 				}
 			}
 		});
@@ -105,8 +162,9 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				try {
-					os.write("pd\n".getBytes("utf-8"));
-					os.flush();
+//					os.write("pd\n".getBytes("utf-8"));
+//					os.flush();
+					commHandler.sendQ("pd\n".getBytes("utf-8"));
 					status.setText("pagedown");
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
@@ -124,8 +182,9 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				try {
-					os.write("pu\n".getBytes("utf-8"));
-					os.flush();
+//					os.write("pu\n".getBytes("utf-8"));
+//					os.flush();
+					commHandler.sendQ("pu\n".getBytes("utf-8"));
 					status.setText("pageup");
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
